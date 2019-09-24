@@ -284,52 +284,6 @@ DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int 
 	return 0;
 }
 
-/*HTREEITEM AddItemToTree(HWND hwndTrV, LPSTR name, int nLevel)
-{
-	TVITEM tvi;
-	TVINSERTSTRUCT tvins;
-	static HTREEITEM hPrev = (HTREEITEM)TVI_FIRST;
-	static HTREEITEM hPrevRootItem = NULL;
-	static HTREEITEM hPrevLev2Item = NULL;
-	//static HTREEITEM hPrevLev3Item = NULL;
-	HTREEITEM hti;
-
-	tvi.mask = TVIF_TEXT | TVIF_IMAGE| TVIF_SELECTEDIMAGE | TVIF_PARAM ;
-	tvi.pszText = name;
-	tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
-	tvi.iImage = 0;
-	tvi.iSelectedImage = 1;
-	//tvi.lParam = (LPARAM)nLevel;
-	tvins.item = tvi;
-	tvins.hInsertAfter = hPrev;
-	//tvins.hParent = parent;
-	//tvmap[child] = parent;
-
-	// Set the parent item based on the specified level
-	if (nLevel == 1)tvins.hParent = TVI_ROOT;
-	else if (nLevel == 2)tvins.hParent = hPrevRootItem;
-	//else if (nLevel == 3)tvins.hParent = hPrevLev2Item;
-	else tvins.hParent = hPrevLev2Item;
-
-	// Add the item to the tree - view control
-	hPrev = (HTREEITEM)SendMessage(hwndTrV,	TVM_INSERTITEM,	0,
-		(LPARAM)(LPTVINSERTSTRUCT)&tvins);
-
-	if (nLevel == 1)hPrevRootItem = hPrev;
-	else if (nLevel == 2)hPrevLev2Item = hPrev;
-	//else if (nLevel == 3)hPrevLev3Item = hPrev;
-	if (hPrev == NULL)return NULL;
-
-	if (nLevel > 1)
-	{
-		hti = TreeView_GetParent(hwndTrV, hPrev);
-		tvi.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-		tvi.hItem = hti;
-		TreeView_SetItem(hwndTrV, &tvi);
-	}
-
-	return hPrev;
-}*/
 
 HTREEITEM AddItemToTree2(HWND hwndTrV, LPTSTR name, HTREEITEM hPrev, LPTSTR path, int expended) {
 	
@@ -410,14 +364,14 @@ HWND CreateTreeView(HWND parent)
 	// Retrieves the coordinates of a window's client area
 	GetClientRect(parent, &rcClient);
 	
-	
+	// Create the TreeView window
 	hwndTrV = CreateWindowEx(0, WC_TREEVIEW, _T("TV_Menu"),
 		WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES |
 		TVS_LINESATROOT | TVS_HASBUTTONS | TVS_CHECKBOXES,
 		0, 0, rcClient.right, rcClient.bottom, parent,
 		IDC_TVMAIN, g_hInst, NULL);
 
-
+	// If fail to initialize TreeView, destroy the specified window
 	if (!InitTreeViewImageLists(hwndTrV) ||
 		!InitTreeViewItems(hwndTrV))
 	{
@@ -436,7 +390,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	MSG Msg;
 	g_hInst = hInstance;	// globalize the handle for future use
 	
-	// Initialize the properties of the window
+	// Initialize the properties of the main window
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = 0;
 	wc.lpfnWndProc = WndProc;
@@ -450,7 +404,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	wc.lpszClassName = TEXT("WinMain");
 	wc.hIconSm = NULL;
 	
-	// Register a window class for subsequent use
+	// Register the window class for the main window
 	if (!RegisterClassEx(&wc))
 	{
 		MessageBox(NULL, TEXT("Window Registration Failed!"), TEXT("Error!"),
@@ -458,7 +412,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		return 0;
 	}
 	
-	// Create an overlapped window
+	// Create the main window 
 	hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		TEXT("WinMain"),
@@ -466,23 +420,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		WS_BORDER | WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, 640, 440,
 		NULL, NULL, hInstance, NULL);
-
+	
+	// Create TreeView and return its handle
 	CreateTreeView(hwnd);
-
+	
+	// If the main window cannot be created, terminate the application
 	if (hwnd == NULL)
 	{
 		MessageBox(NULL, TEXT("Window Creation Failed!"), TEXT("Error!"),
 			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
-
+	
+	// Show the window and paint its contents 
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
-
+	
+	// Start the message loop 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}
+	// Return the exit code to the system
 	return Msg.wParam;
 }
