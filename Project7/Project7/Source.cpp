@@ -36,42 +36,45 @@ struct node {
 // An application-defined function that processes messages sent to a window
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	// 
+	// To deal with different messages sent by a common control to its parent window when an event has occurred
 	LPNMHDR lpnmh = (LPNMHDR)lParam;
 	LPNMTREEVIEW pnmtv = (LPNMTREEVIEW)lParam;
 	switch (msg)
 	{
-	case WM_NOTIFY:
-		if (lpnmh->idFrom == wParam) 
-		{
-			switch (lpnmh->code) 
+		// Mainly focus on clicks on TreeView items
+		case WM_NOTIFY:
+			if (lpnmh->idFrom == wParam) 
 			{
-				case TVN_SELCHANGED:
-				{  
-					node* getnode = (node*)(pnmtv->itemNew.lParam);
-					break;
-				}
-				case TVN_ITEMEXPANDED:
-				{
-					node* getnode = (node*)(pnmtv->itemNew.lParam);
-					if (!getnode->Once) 
-					{
-						HTREEITEM child = TreeView_GetChild(hwnd, pnmtv->itemNew.hItem);
-						getnode->Once = true;
+				switch (lpnmh->code) 
+				{	
+					// If selected item is changed, get the new item
+					case TVN_SELCHANGED:
+					{  
+						node* getnode = (node*)(pnmtv->itemNew.lParam);
+						break;
 					}
-					break;
+					// If the item is expended, get its first child item
+					case TVN_ITEMEXPANDED:
+					{
+						node* getnode = (node*)(pnmtv->itemNew.lParam);
+						if (!getnode->Once) 
+						{
+							HTREEITEM child = TreeView_GetChild(hwnd, pnmtv->itemNew.hItem);
+							getnode->Once = true;
+						}
+						break;
+					}
 				}
 			}
-		}
-	case WM_COMMAND:
-		break;
-	case WM_CLOSE:
-		DestroyWindow(hwnd);
-		break;
-	case WM_DESTROY:
-		break;
-	default:
-		return DefWindowProc(hwnd, msg, wParam, lParam);
+		case WM_COMMAND:
+			break;
+		case WM_CLOSE:
+			DestroyWindow(hwnd);
+			break;
+		case WM_DESTROY:
+			break;
+		default:
+			return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
 }
