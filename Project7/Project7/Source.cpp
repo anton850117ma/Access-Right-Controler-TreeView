@@ -322,11 +322,11 @@ BOOL InitTreeViewImageLists(HWND hwndTV)
 	HIMAGELIST himl;  // handle to image list 
 	HBITMAP hbmp;     // handle to bitmap 
 
-					  // Create the image list. 
+	// Create the image list. 
 	if ((himl = ImageList_Create(CX_BITMAP,	CY_BITMAP, FALSE,NUM_BITMAPS, 0)) == NULL)
 		return FALSE;
 
-	// Add the open file, closed file, and document bitmaps. 
+	// Add opened file, closed file bitmaps. For now, I just used two different eomji pictures.
 	hbmp = (HBITMAP)LoadImage(g_hInst, _T("EYEROLL.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 	int g_nOpen = ImageList_Add(himl, hbmp, (HBITMAP)NULL);
 	DeleteObject(hbmp);
@@ -335,17 +335,17 @@ BOOL InitTreeViewImageLists(HWND hwndTV)
 	int g_nClosed = ImageList_Add(himl, hbmp, (HBITMAP)NULL);
 	DeleteObject(hbmp);
 
-	/*hbmp = LoadBitmap(g_hInst, "EYEROLL.bmp");
-	int g_nDocument = ImageList_Add(himl, hbmp, (HBITMAP)NULL);
-	DeleteObject(hbmp);*/
-
-	// Associate the image list with the tree-view control. 
+	// Associate the image list with the TreeView's handle. 
 	TreeView_SetImageList(hwndTV, himl, TVSIL_NORMAL);
 	return TRUE;
 }
 
 BOOL InitTreeViewItems(HWND hwndTrV) 
 {
+	/*
+	Initialize the root of the TreeView.
+	Add the root item (C drive) to the TreeView and travel only first level children of the root item
+	*/
 	HTREEITEM root;
 	TCHAR szCurrentPath[MAX_PATH] = { _T("C:") };
 	root = AddItemToTree2(hwndTrV, _T("C:"), TVI_ROOT, szCurrentPath, 1);
