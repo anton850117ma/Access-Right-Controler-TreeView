@@ -254,7 +254,7 @@ DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int 
 
 	if (hListFile == INVALID_HANDLE_VALUE)
 	{
-		//printf("¿ù»~¡G%d", GetLastError());
+		//printf("Â¿Ã¹Â»~Â¡G%d", GetLastError());
 		return 1;
 	}
 	else
@@ -424,8 +424,10 @@ HWND CreateTreeView(HWND parent)
 	return hwndTrV;
 }
 
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine, int nCmdShow)
 {
+	// Use Windows API to open a window
 	WNDCLASSEX wc;
 	HWND hwnd;
 	MSG Msg;
