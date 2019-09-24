@@ -24,215 +24,51 @@ HMENU IDC_TVMAIN;
 map<HTREEITEM, HTREEITEM> tvmap;
 HTREEITEM AddItemToTree2(HWND hwndTrV, LPTSTR name, HTREEITEM hPrev, LPTSTR path, int expended);
 DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int times, int inserted);
-//DWORD ListTempFileInDrectory(LPSTR szPath, HWND hwndTrV, HTREEITEM parent, int times);
 TCHAR szFullPath[MAX_PATH];
 
+// Structure for recording nodes in TreeView
 struct node {
-	bool Once;
-	SSCharAry AbsPath;
-	TVITEM tvir;
+	bool Once;		// If the children files and folders in this folder have been traveled
+	SSCharAry AbsPath;	// Absolute path
+	TVITEM tvir;		// TreeView item
 };
 
+// An application-defined function that processes messages sent to a window
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//NMHDR  *nmptr;
+	// 
 	LPNMHDR lpnmh = (LPNMHDR)lParam;
 	LPNMTREEVIEW pnmtv = (LPNMTREEVIEW)lParam;
-	//UINT check;
 	switch (msg)
 	{
 	case WM_NOTIFY:
-		if (lpnmh->idFrom == wParam) {
-			switch (lpnmh->code) {
+		if (lpnmh->idFrom == wParam) 
+		{
+			switch (lpnmh->code) 
+			{
 				case TVN_SELCHANGED:
 				{  
-					//mask, hItem, state, and lParam(itemOld and itemNew)
-					//LPNMTREEVIEW pnmtv = (LPNMTREEVIEW)lParam;
 					node* getnode = (node*)(pnmtv->itemNew.lParam);
-					//wstring str = getnode->AbsPath;
-					//ofstream outFile("text.txt", ios::out | ios::binary);
-					//outFile.write((char *)str.c_str(), str.length() * sizeof(wchar_t));
-					//outFile.close();
-					/*TVITEM tvi;
-					tvi.mask = TVIF_PARAM | TVIF_TEXT;
-					tvi.hItem = pnmtv->itemNew.hItem;
-					TreeView_GetItem(hwnd, &tvi);*/
-					//MessageBox(NULL, getnode->AbsPath.Ptr() ,_T("selected"), MB_OK);
 					break;
 				}
 				case TVN_ITEMEXPANDED:
 				{
-					//hItem, state, and lParam (itemNew)
-					//LPNMTREEVIEW pnmtv = (LPNMTREEVIEW)lParam;
-					//MessageBox(NULL, "", "expanded", MB_OK);
-					//check = TreeView_GetItemState(hwnd, pnmtv->itemNew.hItem, TVIS_EXPANDEDONCE);
-					/*if (check == 0) {
-						HTREEITEM child = TreeView_GetChild(hwnd, pnmtv->itemNew.hItem);
-						ListTempFileInDrectory(szFullPath, hwnd, pnmtv->itemNew.hItem, 2);
-						while (TreeView_GetNextSibling(hwnd,child) != NULL) {
-
-						}
-					}*/
 					node* getnode = (node*)(pnmtv->itemNew.lParam);
-					//HTREEITEM child = TreeView_GetChild(hwnd, pnmtv->itemNew.hItem);
-
-					if (!getnode->Once) {
+					if (!getnode->Once) 
+					{
 						HTREEITEM child = TreeView_GetChild(hwnd, pnmtv->itemNew.hItem);
-						//MessageBox(NULL, , _T("selected"), MB_OK);
-						/*ListTempFileInDrectory(getnode->AbsPath.Ptr(), hwnd, child, 1, 2);
-						while (TreeView_GetNextSibling(hwnd, child) != NULL) {
-
-							ListTempFileInDrectory(getnode->AbsPath.Ptr(), hwnd, child, 1, 2);
-						}*/
 						getnode->Once = true;
 					}
 					break;
 				}
-				
-				case TVN_KEYDOWN:  // tree has keyboard focus and user pressed a key
-				{
-					/*LPNMTVKEYDOWN ptvkd = (LPNMTVKEYDOWN)lParam;
-
-					if (ptvkd->wVKey == VK_SPACE)  // if user pressed spacebar
-					{
-
-						// get the currently selected item
-						HTREEITEM ht = TreeView_GetSelection(ptvkd->hdr.hwndFrom);
-
-						// Prepare to test items state
-
-						TVITEM tvItem;
-
-						tvItem.mask = TVIF_HANDLE | TVIF_STATE;
-						tvItem.hItem = (HTREEITEM)ht;
-						tvItem.stateMask = TVIS_STATEIMAGEMASK;
-
-						// Request the information.
-						TreeView_GetItem(ptvkd->hdr.hwndFrom, &tvItem);
-
-						// Return zero if it's not checked, or nonzero otherwise.
-						if ((BOOL)(tvItem.state >> 12) - 1)
-							//MessageBox(hwnd, "Not checked!", "", MB_OK);
-						else
-							//MessageBox(hwnd, "Checked!", "", MB_OK);
-
-					}*/
-				}
-				break;  // see the documentation for TVN_KEYDOWN
-				case NM_CLICK:  // user clicked on a tree
-				{
-					//MessageBox(NULL, "click", "click", MB_OK);
-					/*HTREEITEM hti;
-					TVHITTESTINFO PrevTest;
-					POINT pti;
-					DWORD dwPos = GetMessagePos();
-					pti.x = LOWORD(dwPos); pti.y = HIWORD(dwPos);
-					ScreenToClient(hwnd, &pti);
-					PrevTest.flags = TVHT_ONITEM | TVHT_ONITEMICON;
-					PrevTest.pt = pti;
-					hti = TreeView_HitTest(hwnd , &PrevTest);*/
-
-					//UINT state1 = TreeView_GetItemState(hwnd, HTREEITEM hItem, UINT  stateMask);
-					/*TVHITTESTINFO ht = { 0 };
-
-					DWORD dwpos = GetMessagePos();
-
-					// include <windowsx.h> and <windows.h> header files
-					ht.pt.x = LOWORD(dwpos);
-					ht.pt.y = HIWORD(dwpos);
-					MapWindowPoints(HWND_DESKTOP, lpnmh->hwndFrom, &ht.pt, 1);
-
-					TreeView_HitTest(lpnmh->hwndFrom, &ht);
-
-					if (TVHT_ONITEMSTATEICON & ht.flags)
-					{
-						// Prepare to receive the desired information.
-
-						TVITEM tvItem;
-
-						tvItem.mask = TVIF_HANDLE | TVIF_STATE;
-						tvItem.hItem = (HTREEITEM)ht.hItem;
-						tvItem.stateMask = TVIS_STATEIMAGEMASK;
-
-						// Request the information.
-						TreeView_GetItem(lpnmh->hwndFrom, &tvItem);
-
-						// Return zero if it's not checked, or nonzero otherwise.
-						if (tvItem.state == TVIS_SELECTED)
-							MessageBox(hwnd, "Not checked!", "", MB_OK);
-						else
-							MessageBox(hwnd, "Checked!", "", MB_OK);
-
-					}*/
-					//TVITEM item;
-					//item.hItem = TreeView_GetSelection(hwnd);
-					//if (item.hItem != NULL) {
-					//	MessageBox(hwnd, item.pszText, "", MB_OK);
-					//}
-					
-					
-					
-				}
-				break;
 			}
 		}
-		/*switch (LOWORD(wParam))
-		{
-			case IDC_TVMAIN:
-			{
-				nmptr = (LPNMHDR)lParam;
-				switch (nmptr->code)
-				{
-					case TVN_SELCHANGED:
-					{
-					stringstream ss;
-					HTREEITEM tvi = ((LPNM_TREEVIEW)nmptr)->itemNew.hItem;
-					if (tvi == TVI_MAIN) {
-					ss << "Selected Item : Main";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_HSTATS) {
-					ss << "Selected Item : Hub Statistics";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_APP) {
-					ss << "Selected Item : Appearance";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_NTWRK) {
-					ss << "Selected Item : Network";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_HLST) {
-					ss << "Selected Item : Hublists";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_SETEX) {
-					ss << "Selected Item : Expert Settings";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_USET) {
-					ss << "Selected Item : User Settings";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-					else if (tvi == TVI_BOTS) {
-					ss << "Selected Item : Bots";
-					MessageBox(NULL, ss.str().c_str(), "Item Selection", MB_OK);
-					}
-				}
-				break;
-				}
-			}
-			break;
-		}
-		break;*/
 	case WM_COMMAND:
 		break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
 	case WM_DESTROY:
-		//PostQuitMessage(0);
 		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -241,20 +77,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int times, int inserted)
-{
+{	
+	// Travel all children files and folders in the current folder and add them to the TreeView
 	TCHAR szFilePath[MAX_PATH];
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hListFile;
 	HTREEITEM tvpar2;
-	//TCHAR szFullPath[MAX_PATH];
-
+	
+	// Make the Path be possible to travel
 	_tcscpy(szFilePath, szPath);
 	_tcscat(szFilePath, _T("\\*"));
 	hListFile = FindFirstFile(szFilePath, &FindFileData);
 
 	if (hListFile == INVALID_HANDLE_VALUE)
 	{
-		//printf("¿ù»~¡G%d", GetLastError());
 		return 1;
 	}
 	else
@@ -269,12 +105,12 @@ DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int 
 			wsprintf(szFullPath, _T("%s\\%s"), szPath, FindFileData.cFileName);
 			if(inserted == 1)
 				tvpar2 = AddItemToTree2(hwndTrV, FindFileData.cFileName, parent, szFullPath, times);
-			//dwTotalFileNum++;
-			//_tprintf(_T("%s\n"), szFullPath);
-			if (times == 1) {
+			
+			if (times == 1) 
+			{
 				if (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					//printf("<DIR>");
+				{	
+					// Encounter a folder and get into it
 					ListTempFileInDrectory(szFullPath, hwndTrV, tvpar2, 2, 1);
 				}
 			}
@@ -285,18 +121,25 @@ DWORD ListTempFileInDrectory(LPTSTR szPath, HWND hwndTrV, HTREEITEM parent, int 
 }
 
 
-HTREEITEM AddItemToTree2(HWND hwndTrV, LPTSTR name, HTREEITEM hPrev, LPTSTR path, int expended) {
+HTREEITEM AddItemToTree2(HWND hwndTrV, LPTSTR name, HTREEITEM hPrev, LPTSTR path, int expended) 
+{
 	
+	/*
+	Add an item to the TreeView.
+	
+	hwndTrV 	TreeView handle
+	name		The file or folder's name
+	hPrev		The handle of the parent item
+	path		Absolute path of the file or folder
+	expended	Check if expended before
+	*/
+	// 
 	TVITEM tvi;
 	TVINSERTSTRUCT tvins;
 	node *newnode = new node;
 	newnode->AbsPath = path;
 	if(expended == 1)newnode->Once = true;
 	else newnode->Once = false;
-	
-	//_tcscpy(ptr->absolutepath, path);
-	//_tcscat(ssave,path);
-	//_tcscat(ssave,"\1");
 
 	tvi.mask = TVIF_TEXT | TVIF_PARAM | TVIF_HANDLE | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 	tvi.pszText = name;
@@ -309,11 +152,11 @@ HTREEITEM AddItemToTree2(HWND hwndTrV, LPTSTR name, HTREEITEM hPrev, LPTSTR path
 	tvins.item = tvi;
 	tvins.hInsertAfter = TVI_SORT;
 	tvins.hParent = hPrev;
-
+	
+	// Send a message to insert the item
 	hPrev = (HTREEITEM)SendMessage(hwndTrV, TVM_INSERTITEM, 0,
 		(LPARAM)(LPTVINSERTSTRUCT)&tvins);
 
-	//free(newnode);
 	return hPrev;
 }
 
