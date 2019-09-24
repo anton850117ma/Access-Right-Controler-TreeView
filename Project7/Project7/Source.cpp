@@ -402,12 +402,15 @@ BOOL InitTreeViewItems(HWND hwndTrV)
 
 HWND CreateTreeView(HWND parent)
 {
+	// Create a TreeView window in the parent window
 	HWND hwndTrV;
 	RECT rcClient;
 	IDC_TVMAIN = NULL;
 
-
+	// Retrieves the coordinates of a window's client area
 	GetClientRect(parent, &rcClient);
+	
+	
 	hwndTrV = CreateWindowEx(0, WC_TREEVIEW, _T("TV_Menu"),
 		WS_VISIBLE | WS_CHILD | WS_BORDER | TVS_HASLINES |
 		TVS_LINESATROOT | TVS_HASBUTTONS | TVS_CHECKBOXES,
@@ -428,11 +431,12 @@ HWND CreateTreeView(HWND parent)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine, int nCmdShow)
 {
 	// Use Windows API to open a window
-	WNDCLASSEX wc;
-	HWND hwnd;
+	WNDCLASSEX wc;		// window class
+	HWND hwnd;		// a handle for the window
 	MSG Msg;
-	g_hInst = hInstance;
-
+	g_hInst = hInstance;	// globalize the handle for future use
+	
+	// Initialize the properties of the window
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = 0;
 	wc.lpfnWndProc = WndProc;
@@ -445,14 +449,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = TEXT("WinMain");
 	wc.hIconSm = NULL;
-
+	
+	// Register a window class for subsequent use
 	if (!RegisterClassEx(&wc))
 	{
 		MessageBox(NULL, TEXT("Window Registration Failed!"), TEXT("Error!"),
 			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
-
+	
+	// Create an overlapped window
 	hwnd = CreateWindowEx(
 		WS_EX_CLIENTEDGE,
 		TEXT("WinMain"),
